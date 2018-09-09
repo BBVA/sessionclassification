@@ -1,7 +1,7 @@
 # Introduction
 ## Theory
 
-In cybersecurity, one of the branches of analytics that is taking the most force is to analyze the behavior of users, machines, services, etc. One way would be to model the behavior of ports depending on whether traffic passing through it is encrypted or not. If a time series analysis process were performed, whose value is the percentage of encrypted traffic passing through each port, anomalies could be detected in various phases of a Cyber Kill Chain.
+In cybersecurity, one of the branches of analytics that is gathering strength is to analyze the behavior of users, machines, services, etc. One way would be to model the behavior of ports depending on whether traffic passing through it is encrypted or not. If a time series analysis process were performed, whose value is the percentage of encrypted traffic passing through each port, anomalies could be detected in various phases of a Cyber Kill Chain.
 
 In this repository the first step is taken, an algorithm is offered that determines if a session is encrypted. To fulfill this purpose, the network protocol it uses can be used as a base, which is not reliable, since encryption layers can be added regardless of the protocol used. It would also be assumed that the tools that are available understand perfectly all the protocols and can read their headers, even if they are protocols that are not public like the one used by Citrix. Also keep in mind that as new versions of the protocols come out, the tools should be updated and understood.
 
