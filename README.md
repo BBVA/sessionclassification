@@ -84,7 +84,7 @@ In order to reproduce this study, the filters that were applied to the building 
 - **SSL**: ssl and not ssl.handshake
 - **HTTP**: http and not http2 and not ssl and not (tcp.srcport == 8080 or  tcp.srcport == 80 )
 
-In the case of * HTTP *, filters are included to remove them from the building traffic sample. It can not be extrapolated to any PCAP.
+In the case of *HTTP*, filters are included to remove them from the building traffic sample. It can not be extrapolated to any PCAP.
 
 To read the pcaps, you must clone the repository of <a href="https://github.com/dataEverything/file_processing"> file_processing </a> where there are functions that abstract the functionalities necessary for the execution of the algorithm contained in the present repository.
 
@@ -211,7 +211,7 @@ After applying Wireshark filters, a package is selected that is known to be encr
 
 Data contained in the test PCAPS:
 - ** Sessions **: there are TCP and UDP sessions in the PCAPS.
-- ** Packages with several files **: there are sessions containing non-encrypted files transferred by SMB (not to be confused with SMB3). It is known that these are not encrypted because they can be downloaded in Wireshark with the option * Export Objects / SMB *
+- ** Packages with several files **: there are sessions containing non-encrypted files transferred by SMB (not to be confused with SMB3). It is known that these are not encrypted because they can be downloaded in Wireshark with the option *Export Objects / SMB *
 
 
 Then the payload is extracted from each PCAP giving a result of file per session. That is to say, that each file is labeled instead of labeling a package, as was done in the training phase, since the objective is to know if a session is encrypted or not. To facilitate the labeling, encrypted PCAPS are saved in different folders of those that are not.
@@ -222,11 +222,11 @@ The pre-processing in both cases is the same, so the algorithm could be applied 
 
 It is a probabilistic classifier based on Bayes' theorem and some additional simplifying hypotheses. The parameters used to train this classifier are the characteristics of the distributions of the training set.
 
-In the *Classification of network sessions* notebook you can see how the model is applied to each package, and the result is summarized per session.
+In the *NetworkSessionClassification* notebook you can see how the model is applied to each package, and the result is summarized per session.
 
 ## Algorithm
 
-After training the algorithm that detects whether a packet is encrypted or not, you should find a way to give a result per session. To fulfill this purpose, a class that is potentially deployable in production is developed, which is found in the * Classification of network sessions * notebook.
+After training the algorithm that detects whether a packet is encrypted or not, you should find a way to give a result per session. To fulfill this purpose, a class that is potentially deployable in production is developed, which is found in the *NetworkSessionClassification* notebook.
 
 The labels of the packages are -1 and 1 to be able to know how encrypted or unencrypted it is, since if the labels of the packages were 0 and 1, one could only know how encrypted it is.
 
@@ -250,9 +250,9 @@ The formula that is used to give a result per session is the following:
 
 
 Where:
-- * n * is the number of packages that a session contains
-- The vector * P * is the vector that contains the size of each packet within the session in bytes.
-- The vector * L * is the vector that contains the classification result, which will be 1 or -1.
+- *n* is the number of packages that a session contains
+- The vector *P* is the vector that contains the size of each packet within the session in bytes.
+- The vector *L* is the vector that contains the classification result, which will be 1 or -1.
 
 The prediction will be a value between 1 and -1, since it is normalized by a hyperbolic tangent.
 - Not encrypted: -1
@@ -263,7 +263,7 @@ The prediction will be a value between 1 and -1, since it is normalized by a hyp
 
 When the algorithm is applied, the function that returns a list of routes is called. Each file must contain a single session. This part can be replaced by any other type of entry, as long as a raw PCAP is passed to the class.
 
-Once, you are given the path where the session to be analyzed is located, the function that reads the file is called and it is passed to the class ** SessionClassification ** and the results are saved in the list * y_pred * to contrast them with those expected in order to measure the effectiveness of the algorithm. This list will have one element per session.
+Once, you are given the path where the session to be analyzed is located, the function that reads the file is called and it is passed to the class **SessionClassification** and the results are saved in the list *y_pred* to contrast them with those expected in order to measure the effectiveness of the algorithm. This list will have one element per session.
 
 To give a result per session, multiply the list with the predictions and the list of the sizes of the packages that belong to a session. This is done because there are cases in which a session is not encrypted from the beginning. For example, an encrypted TCP session may have a pre-negotiation phase that will not be. However, that session should be classified as encrypted. Normally, negotiation packages are smaller than encrypted data, so size acts as a weight that models encryption in a session.
 
@@ -277,7 +277,8 @@ Although there are false positives and false negatives when classifying the pack
 ## Model metrics
 ### Confusion Matrix
 
-The following metrics are calculated:- TNR: 0.97
+The following metrics are calculated:
+- TNR: 0.97
 - TPR: 1.00
 - Precision: 0.92
 - Recall: 1.00
@@ -306,7 +307,7 @@ It is possible, from a PCAP or raw network traffic, to know if a session is encr
 When it comes to training and testing the model, it does not make sense to apply it in real time. It has been tried to apply the model in streaming with Kafka, obtaining good results.
 
 ## Filter of sessions without payload at the level of the application layer
-False positives are given in packets that only contain protocol headers, such as a * Create Request File * of SMB2. With a better protocol pairing or with an additional filter, the effectiveness of the model could be improved.
+False positives are given in packets that only contain protocol headers, such as a *Create Request File* of SMB2. With a better protocol pairing or with an additional filter, the effectiveness of the model could be improved.
 
 ## Characterization by protocol
 A study could be made within each protocol of the percentage of encrypted traffic that receives and analyze variations on it. Another option is to add more variables describing the protocol itself, creating a module parallel or subsequent to the encryption algorithm.
