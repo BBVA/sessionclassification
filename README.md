@@ -210,8 +210,8 @@ To apply the algorithm, the PCAPS that are contained in the specified route are 
 After applying Wireshark filters, a package is selected that is known to be encrypted or not and the session that contains it is extracted. Then the session is re-analyzed, exploring the headers and / or visually to ensure that the provided label is correct. A list with the expected labels is constructed, given the PCAPS that are provided for the test phase.
 
 Data contained in the test PCAPS:
-- ** Sessions **: there are TCP and UDP sessions in the PCAPS.
-- ** Packages with several files **: there are sessions containing non-encrypted files transferred by SMB (not to be confused with SMB3). It is known that these are not encrypted because they can be downloaded in Wireshark with the option *Export Objects / SMB *
+- **Sessions**: there are TCP and UDP sessions in the PCAPS.
+- **Packages with several files**: there are sessions containing non-encrypted files transferred by SMB (not to be confused with SMB3). It is known that these are not encrypted because they can be downloaded in Wireshark with the option *Export Objects / SMB *
 
 
 Then the payload is extracted from each PCAP giving a result of file per session. That is to say, that each file is labeled instead of labeling a package, as was done in the training phase, since the objective is to know if a session is encrypted or not. To facilitate the labeling, encrypted PCAPS are saved in different folders of those that are not.
@@ -232,8 +232,8 @@ The labels of the packages are -1 and 1 to be able to know how encrypted or unen
 
 When answering if a session is encrypted or not, the following values are collected:
 
-- ** Vector P **: classification of the package within a session. That will be -1 in the unencrypted packets and 1 in the encrypted ones
-- ** Vector L **: size of each packet within a session
+- **Vector P**: classification of the package within a session. That will be -1 in the unencrypted packets and 1 in the encrypted ones
+- **Vector L**: size of each packet within a session
 
 The product of both vectors is added and the result is normalized with a hyperbolic tangent.
 
