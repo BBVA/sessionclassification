@@ -1,13 +1,13 @@
 # Introduction
 ## Theory
 
-In cybersecurity, one of the branches of analytics that is gathering strength is to analyze the behavior of users, machines, services, etc. One way would be to model the behavior of ports depending on whether traffic passing through it is encrypted or not. If a time series analysis process were performed, whose value is the percentage of encrypted traffic passing through each port, anomalies could be detected in various phases of a Cyber Kill Chain.
+In cybersecurity, one of the branches of analytics that is gathering strength is to analyze the behavior of users, machines, services, etc. One way would be to model the ports' behavior depending on whether traffic passing through it is encrypted or not. If a time series analysis process was performed, whose value is the percentage of encrypted traffic passing through each port, anomalies could be detected in many Cyber Kill Chain stages.
 
-In this repository the first step is taken, an algorithm is offered that determines if a session is encrypted. To fulfill this purpose, the network protocol it uses can be used as a base, which is not reliable, since encryption layers can be added regardless of the protocol used. It would also be assumed that the tools that are available understand perfectly all the protocols and can read their headers, even if they are protocols that are not public like the one used by Citrix. Also keep in mind that as new versions of the protocols come out, the tools should be updated and understood.
+In this repository the first step is taken, an algorithm that determines if a session is encrypted is offered. To fulfill this purpose, the network protocol it uses can be used as a base, which is not reliable, since encryption layers can be added regardless of the protocol used. We would also have to assume that the tools that are available understand perfectly all the protocols and can read their headers, even if the protocols are not public like the one used by Citrix. Also keep in mind that as new versions of the protocols come out, the tools would need to be updated so the protocols can be understood.
 
-In addition, encryption can be confused at a glance with serializations, with encodings, with protocol headers that can not be interpreted by PCAPS parsing tools (Wireshark, Scapy, etc.).
+In addition, encryption can be confused at a glance with serializations, encodings or protocol headers that can not be interpreted by PCAPS parsing tools (Wireshark, Scapy, etc.).
 
-A very extended tool to determine if a file or a string is encrypted is <a href="http://www.fourmilab.ch/random/"> Ent </a>, which provides the following metrics:
+A very extended tool to determine whether a file or a string is encrypted is <a href="http://www.fourmilab.ch/random/"> Ent </a>, which provides the following metrics:
 
 - Entropy
 - Chi-square Test
@@ -16,14 +16,14 @@ A very extended tool to determine if a file or a string is encrypted is <a href=
 - Serial Correlation Coefficient
 
 
-A good technique to determine if a file is encrypted, is to calculate a probability distribution with the bytes it contains. In the paper <a href="https://www.researchgate.net/publication/50392274_Substitution-diffusion_based_Image_Cipher?_sg=tGAmmy34BimyDZ2PgSk-pPO_aZxQG7cUFF_sRmSelPmf0gYLs7ocBt4Ew0NyuSgRyu3VZFMbhg"> of Narendra  K Pareek, Vinod Patidar and Krishan K Sud called *'Substitution-diffusion based Image Cipher'* </a> shows how the probability distribution of the bytes of an image changes when it is encrypted.
+A good technique to know whether a file is encrypted, is to calculate a probability distribution with the bytes it contains. In the paper <a href="https://www.researchgate.net/publication/50392274_Substitution-diffusion_based_Image_Cipher?_sg=tGAmmy34BimyDZ2PgSk-pPO_aZxQG7cUFF_sRmSelPmf0gYLs7ocBt4Ew0NyuSgRyu3VZFMbhg"> of Narendra  K Pareek, Vinod Patidar and Krishan K Sud called *'Substitution-diffusion based Image Cipher'* </a> shows how the probability distribution of the bytes of an image changes when it is encrypted.
   
 
 <div align="center" >
     <img width="70%"  src="img/hist-cifrado.png"/>
 </div>
 
-It is observed that the distribution is flattened, becoming much more uniform than when they are encrypted, which implies that each byte would be equiprobable and the average would be centered. This makes the metrics proposed by Ent very effective to know if a file or a string is encrypted, since many of them are based on knowing the uniformity of the probability distribution of the bytes that make up the file in question.
+It is observed that the distribution is flattened, becoming much more uniform than when they are unencrypted, which implies that each byte would be equiprobable and the average would be centered. This makes the metrics proposed by Ent very effective to know whether a file or a string is encrypted, since many of them are based on measuring the uniformity of the probability distribution of the bytes that make up the file in question.
 
 
 
@@ -37,14 +37,14 @@ The theory says that an encrypted content should follow a uniform distribution. 
 
 Below is an example of how the SMB3 protocol shows some of the mentioned problems. This protocol contains data in your payload encrypted with AES-128-CCM.
 
-There are protocols of the application layer whose headers do not understand either of them. As seen in the image below, the payload includes the red area, which corresponds to the NetBios layer, when the relevant area is green. It should be noted that most of the bytes that are included are unduly zeros.
+There are protocols of the application layer whose headers do not understand either of them. As seen in the image below, the payload includes the red area, which corresponds to the NetBios layer, when the relevant area is the green one. It should be noted that most of the bytes that are included are unduly zeros.
 It is the deepest payload (that of the application layer) to which both Scapy and Wireshark do not allow access in many cases.
 
 <div align="center" >
   <img width="70%"  src="img/smb3-aes-128.png"/>
 </div>
 
-In the case of the PCAP with packages whose application layer uses the SMB3 protocol, which contains encrypted data, the probability distribution can be visualized, which theoretically should be uniform, since the data is encrypted. However, headers produce a distortion in the probability distributions, as seen in the following.
+In the case of the PCAP with packets whose application layer uses the SMB3 protocol, which contains encrypted data, the probability distribution can be visualized, which theoretically should be uniform, since the data is encrypted. However, headers produce a distortion in the probability distributions, as seen in the following image.
 
 <div align="center" >
   <img width="70%"  src="img/distribucion-smb-aes-128.PNG"/>
@@ -57,18 +57,18 @@ One way to prevent these distortions from affecting the algorithm's effectivenes
 </div>
 
 
-In this way, it is achieved that the algorithm can identify whether a TCP or UDP session is encrypted or not. In the training phase the packages are used, since the characterization is much more refined than when the training is done per session.
+In this way, it is achieved that the algorithm can identify whether a TCP or UDP session is encrypted or not. In the training stage the characterization will be done by packets, since the it is much more refined than when the training is made per session.
 
-Although it is true that the variables that measure uniformity are good variables, others that understand the behavior in the probability distribution must be included. For example, an unencrypted payload should have a majority of printable ASCII carateceres, although there is a distortion by the protocol headers of the application layer.
+Although it is true that the variables that measure uniformity are good variables, other variables must be included to understand the form of the real probability distribution. For example, an unencrypted payload should have a majority of printable ASCII characters, even if the distortion caused by the protocol headers of the application layer uses non printable characters.
 
 
-# Training phase
+# Training stage
 ## Training data
 
-The training data is made up of a traffic sample of BBVA Central Services buildings. These are in the form of a PCAP file, which occupies more than 4 GB.
-### Description
+The training data is created using a traffic sample of BBVA Central Services buildings. These are in the form of a PCAP file, which is more than 4 GB.
+### Descriptionn
 
-In this phase, they use packages that use different protocols. To filter them, Wireshark filters are used (also applicable to TShark). All the packages used in the training have been analyzed thoroughly before. Including a false label in this phase will lead to bad results. It is not necessary to use too many examples, since Naive Bayes trains well with few data. The protocols used for training are the following:
+In this stage, there are packets that use different protocols. To filter them, Wireshark filters are used (also applicable to TShark). All the packets used in the training have been analyzed thoroughly before. Including a false label in this stage will lead to bad results. It is not necessary to use too many examples, since Naive Bayes trains well with few data. The protocols used for training are the following:
 
 - **TELNET**: not encrypted
 - **SMB**: encrypted
@@ -168,7 +168,7 @@ In the encrypted packets, the dispersion is usually maximum. Not only the bytes 
 ### Most_ASCII
 Certain bytes belong to the printable ASCII table. If these are used more than the rest, you can indicate that the data is not encrypted.
 
-The variable most_ascii represents the proportion of printable ASCII characters with respect to the rest of the bytes that the payload of the package contains. In encryption, it is usually very low and higher in non-encrypted ones.
+The variable most_ascii represents the proportion of printable ASCII characters with respect to the rest of the bytes that the payload of the packet contains. In encryption, it is usually very low and higher in non-encrypted ones.
 
 <div align="center" >
   <img width="70%"  src="img/most_ascii.png"/>
@@ -177,7 +177,7 @@ The variable most_ascii represents the proportion of printable ASCII characters 
 ### Non_printable
 It has been observed that some bytes within the distribution appear frequently in the encrypted data.
 
-The non_printable variable represents the proportion of non-printable bytes with respect to the rest of the bytes that the package payload contains.
+The non_printable variable represents the proportion of non-printable bytes with respect to the rest of the bytes that the packet payload contains.
 
 <div align="center" >
   <img width="70%"  src="img/non_printable.png"/>
@@ -202,19 +202,19 @@ A separation of the variables in the scatterplots matrix is observed. In blue ar
   <img width="70%"  src="img/distribution.png"/>
 </div>
 
-# Test phase
+# Test stage
 Once the variables have been studied, Naive Bayes is used as a classification algorithm. The trained model is saved for later use.
 
 To apply the algorithm, the PCAPS that are contained in the specified route are read. This part has been separated from the rest of the algorithm in order to change the way PCAPS is read, so Kafka could be used instead of reading the files of a directory.
 
-After applying Wireshark filters, a package is selected that is known to be encrypted or not and the session that contains it is extracted. Then the session is re-analyzed, exploring the headers and / or visually to ensure that the provided label is correct. A list with the expected labels is constructed, given the PCAPS that are provided for the test phase.
+After applying Wireshark filters, a packet is selected that is known to be encrypted or not and the session that contains it is extracted. Then the session is re-analyzed, exploring the headers and / or visually to ensure that the provided label is correct. A list with the expected labels is constructed, given the PCAPS that are provided for the test stage.
 
 Data contained in the test PCAPS:
 - **Sessions**: there are TCP and UDP sessions in the PCAPS.
-- **Packages with several files**: there are sessions containing non-encrypted files transferred by SMB (not to be confused with SMB3). It is known that these are not encrypted because they can be downloaded in Wireshark with the option *Export Objects / SMB *
+- **packets with several files**: there are sessions containing non-encrypted files transferred by SMB (not to be confused with SMB3). It is known that these are not encrypted because they can be downloaded in Wireshark with the option *Export Objects / SMB *
 
 
-Then the payload is extracted from each PCAP giving a result of file per session. That is to say, that each file is labeled instead of labeling a package, as was done in the training phase, since the objective is to know if a session is encrypted or not. To facilitate the labeling, encrypted PCAPS are saved in different folders of those that are not.
+Then the payload is extracted from each PCAP giving a result of file per session. That is to say, that each file is labeled instead of labeling a packet, as was done in the training stage, since the objective is to know if a session is encrypted or not. To facilitate the labeling, encrypted PCAPS are saved in different folders of those that are not.
 
 The pre-processing in both cases is the same, so the algorithm could be applied with unlabelled sessions.
 
@@ -222,17 +222,17 @@ The pre-processing in both cases is the same, so the algorithm could be applied 
 
 It is a probabilistic classifier based on Bayes' theorem and some additional simplifying hypotheses. The parameters used to train this classifier are the characteristics of the distributions of the training set.
 
-In the *NetworkSessionClassification* notebook you can see how the model is applied to each package, and the result is summarized per session.
+In the *NetworkSessionClassification* notebook you can see how the model is applied to each packet, and the result is summarized per session.
 
 ## Algorithm
 
 After training the algorithm that detects whether a packet is encrypted or not, you should find a way to give a result per session. To fulfill this purpose, a class that is potentially deployable in production is developed, which is found in the *NetworkSessionClassification* notebook.
 
-The labels of the packages are -1 and 1 to be able to know how encrypted or unencrypted it is, since if the labels of the packages were 0 and 1, one could only know how encrypted it is.
+The labels of the packets are -1 and 1 to be able to know how encrypted or unencrypted it is, since if the labels of the packets were 0 and 1, one could only know how encrypted it is.
 
 When answering if a session is encrypted or not, the following values are collected:
 
-- **Vector P**: classification of the package within a session. That will be -1 in the unencrypted packets and 1 in the encrypted ones
+- **Vector P**: classification of the packet within a session. That will be -1 in the unencrypted packets and 1 in the encrypted ones
 - **Vector L**: size of each packet within a session
 
 The product of both vectors is added and the result is normalized with a hyperbolic tangent.
@@ -250,7 +250,7 @@ The formula that is used to give a result per session is the following:
 
 
 Where:
-- *n* is the number of packages that a session contains
+- *n* is the number of packets that a session contains
 - The vector *P* is the vector that contains the size of each packet within the session in bytes.
 - The vector *L* is the vector that contains the classification result, which will be 1 or -1.
 
@@ -265,14 +265,14 @@ When the algorithm is applied, the function that returns a list of routes is cal
 
 Once, you are given the path where the session to be analyzed is located, the function that reads the file is called and it is passed to the class **SessionClassification** and the results are saved in the list *y_pred* to contrast them with those expected in order to measure the effectiveness of the algorithm. This list will have one element per session.
 
-To give a result per session, multiply the list with the predictions and the list of the sizes of the packages that belong to a session. This is done because there are cases in which a session is not encrypted from the beginning. For example, an encrypted TCP session may have a pre-negotiation phase that will not be. However, that session should be classified as encrypted. Normally, negotiation packages are smaller than encrypted data, so size acts as a weight that models encryption in a session.
+To give a result per session, multiply the list with the predictions and the list of the sizes of the packets that belong to a session. This is done because there are cases in which a session is not encrypted from the beginning. For example, an encrypted TCP session may have a pre-negotiation stage that will not be. However, that session should be classified as encrypted. Normally, negotiation packets are smaller than encrypted data, so size acts as a weight that models encryption in a session.
 
-## Data used for the test phase
+## Data used for the test stage
 The PCAPS used for the test come from the latter part of PCAP sample traffic and traffic buildings captured during the Dementors from Hogwarts' platform.
 
 # Results
 
-Although there are false positives and false negatives when classifying the packages, these errors occur when the packages are very small, so these errors are corrected when a session is taken into account as a whole.
+Although there are false positives and false negatives when classifying the packets, these errors occur when the packets are very small, so these errors are corrected when a session is taken into account as a whole.
 
 ## Model metrics
 ### Confusion Matrix
