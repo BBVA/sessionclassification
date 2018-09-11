@@ -298,7 +298,9 @@ Curve Receiver Operating Characteristic is a graphical representation of the sen
   <img width="70%"  src="img/roc_curve.png"/>
 </div>
 
+
 # Conclusion 
+The model does a very good job classifiying sessions, but as the data was manually labelled, not all the protocols could be used to test the algorithm accuracy.  
 
 It is possible, from a PCAP or raw network traffic, to know whether a session is encrypted or not although not all protocols are implemented by the available PCAPS parsing tools, thus being able to classify any session without doing any previous filtering. This would allow to find out about the behavior of ports, servers, applications, etc. . It could thus detect anomalies that could trigger security alerts in the future.
 
