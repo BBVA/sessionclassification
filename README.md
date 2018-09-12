@@ -211,7 +211,7 @@ After applying Wireshark filters, a packet is selected that is known to be encry
 
 Data contained in the test PCAPS:
 - **Sessions**: there are TCP and UDP sessions in the PCAPS.
-- **Packets with several files**: there are sessions containing non-encrypted files transferred by SMB (not to be confused with SMB3). It is known that these are not encrypted because they can be downloaded in Wireshark with the option *Export Objects / SMB *
+- **Packets with several files**: there are sessions containing non-encrypted files transferred by SMB (not to be confused with SMB3). It is known that these are not encrypted because they can be downloaded in Wireshark with the option *Export Objects/SMB*
 
 
 Then the payload is extracted from each PCAP giving a result of file per session. That is to say, that each file is labeled instead of labeling a packet, as was done in the training stage, since the objective is to know if a session is encrypted or not. To facilitate the labeling, encrypted PCAPS are saved in different folders of those that are not.
