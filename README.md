@@ -66,7 +66,7 @@ Although it is true that the variables that measure uniformity are good variable
 ## Training data
 
 The training data is created using a traffic sample of BBVA Central Services buildings. These are in the form of a PCAP file, which is more than 4 GB.
-### Descriptionn
+### Description
 
 In this stage, there are packets that use different protocols. To filter them, Wireshark filters are used (also applicable to TShark). All the packets used in the training have been analyzed thoroughly before. Including a false label in this stage will lead to bad results. It is not necessary to use too many examples, since Naive Bayes trains well with few data. The protocols used for training are the following:
 
